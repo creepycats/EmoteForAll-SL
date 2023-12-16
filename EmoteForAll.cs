@@ -8,7 +8,7 @@ namespace EmoteForAll
     {
         public override string Name => "EmoteForAll";
         public override string Author => "creepycats";
-        public override Version Version => new Version(1, 0, 0);
+        public override Version Version => new Version(1, 1, 0);
 
         public static EmoteForAll Instance { get; set; }
 

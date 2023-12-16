@@ -40,7 +40,7 @@
     <Compile Include="Commands\EmoteCommand.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="EmoteForAll.cs" />
-    <Compile Include="Patches\VoiceLines.cs" />
+    <Compile Include="Patches\Emote3114.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

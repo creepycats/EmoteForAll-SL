@@ -3,10 +3,13 @@ using Exiled.API.Extensions;
 using Exiled.API.Features;
 using Exiled.API.Features.Components;
 using Exiled.API.Features.Roles;
+using MapEditorReborn.Commands.UtilityCommands;
 using MEC;
 using Mirror;
 using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
+using PlayerRoles.PlayableScps.HumeShield;
+using PlayerStatsSystem;
 using RelativePositioning;
 using System;
 using System.Collections.Generic;
@@ -37,6 +40,9 @@ namespace EmoteForAll.Classes
 
             Timing.CallDelayed(0.5f, () =>
             {
+                EmoteNpc.Health = 999f;
+                EmoteNpc.HumeShield = 0f;
+                EmoteNpc.Scale = plr.Scale;
                 if (EmoteNpc.Role is Scp3114Role scpRole)
                 {
                     Ragdoll ragdoll = Ragdoll.CreateAndSpawn(
@@ -67,7 +73,14 @@ namespace EmoteForAll.Classes
                 }
                 plr.ShowHint("Started Emote. Cancel by Moving.", 5f);
 
-                plr.ChangeAppearance(RoleTypeId.Spectator, true, 0);
+                Vector3 realScale = plr.ReferenceHub.transform.localScale;
+                plr.ReferenceHub.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+                foreach (Player item in Player.List)
+                {
+                    if (item.UserId != plr.UserId)
+                        Server.SendSpawnMessage?.Invoke(null, new object[2] { plr.NetworkIdentity, item.Connection });
+                }
+                plr.ReferenceHub.transform.localScale = realScale;
             });
 
             return true;
@@ -204,15 +217,29 @@ namespace EmoteForAll.Classes
 
                 try
                 {
-                    if (Player.Get(OwnerUserId) == null)
+                    Player plr = Player.Get(OwnerUserId);
+                    if (plr == null)
                     {
                         KillEmote(true);
                         continue;
                     }
-                    if (Player.Get(OwnerUserId).Role.IsDead)
+                    if (plr.Role.IsDead)
                     {
                         KillEmote();
                         continue;
+                    }
+                    if (plr.Scale != NpcOwner.Scale)
+                    {
+                        Vector3 realScale = plr.ReferenceHub.transform.localScale;
+                        plr.ReferenceHub.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+                        foreach (Player item in Player.List)
+                        {
+                            if (item.UserId != plr.UserId)
+                                Server.SendSpawnMessage?.Invoke(null, new object[2] { plr.NetworkIdentity, item.Connection });
+                        }
+                        plr.ReferenceHub.transform.localScale = realScale;
+
+                        NpcOwner.Scale = plr.Scale;
                     }
                     if (Vector3.Distance(NpcOwner.Position, PlayerOwner.transform.position) > 0.05)
                     {
@@ -220,6 +247,9 @@ namespace EmoteForAll.Classes
                         continue;
                     }
                     LookAt(NpcOwner, Player.Get(OwnerUserId).CameraTransform.forward + Player.Get(OwnerUserId).CameraTransform.position);
+
+                    NpcOwner.Health = 999f;
+                    NpcOwner.HumeShield = 0f;
                 }
                 catch (Exception e)
                 {
@@ -228,16 +258,29 @@ namespace EmoteForAll.Classes
             }
         }
 
-        private void KillEmote(bool skipOwner = false)
+        public void KillEmote(bool skipOwner = false, float plrDamage = 0)
         {
+            if (KeepRunning == false) return;
+
             KeepRunning = false;
+            NpcOwner.Position = new Vector3(-9999f, -9999f, -9999f);
             if (!skipOwner)
             {
                 Player ownerplr = Player.Get(PlayerOwner);
-                ownerplr.ShowHint("Emote Cancelled.");
-                ownerplr.ChangeAppearance(ownerplr.Role.Type, true, ownerplr.UnitId);
+                ownerplr.ShowHint($"Emote Cancelled. " + (plrDamage != 0 ? "(You took damage from Someone)" : "(You moved)"));
+
+                foreach (Player item in Player.List)
+                {
+                    if (item.UserId != OwnerUserId)
+                        Server.SendSpawnMessage?.Invoke(null, new object[2] { ownerplr.NetworkIdentity, item.Connection });
+                }
+
+                if (plrDamage != 0)
+                {
+                    ownerplr.Health -= plrDamage;
+                    if (ownerplr.Health <= 0) ownerplr.Health = 1;
+                }
             }
-            NpcOwner.Position = new Vector3(-9999f, -9999f, -9999f);
             Timing.CallDelayed(0.5f, () =>
             {
                 emoteAttachedNPC.Remove(OwnerUserId);
