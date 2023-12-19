@@ -42,6 +42,7 @@
     <Compile Include="EmoteForAll.cs" />
     <Compile Include="Patches\Emote3114.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Types\Scp3114DanceType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -97,6 +98,10 @@
     </Reference>
     <Reference Include="Mono.Posix">
       <HintPath>..\..\..\..\AppData\Roaming\EXILED\Plugins\dependencies\Mono.Posix.dll</HintPath>
+    </Reference>
+    <Reference Include="NorthwoodLib, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\SteamLibrary\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\NorthwoodLib.dll</HintPath>
     </Reference>
     <Reference Include="PluginAPI">
       <HintPath>..\..\..\..\..\..\SteamLibrary\steamapps\common\SCP Secret Laboratory Dedicated Server\SCPSL_Data\Managed\PluginAPI.dll</HintPath>
