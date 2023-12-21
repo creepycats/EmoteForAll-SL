@@ -1,6 +1,7 @@
 ﻿using Exiled.API.Features;
 using HarmonyLib;
 using System;
+using System.Runtime.InteropServices;
 
 namespace EmoteForAll
 {
@@ -8,11 +9,12 @@ namespace EmoteForAll
     {
         public override string Name => "EmoteForAll";
         public override string Author => "creepycats";
-        public override Version Version => new Version(1, 1, 1);
+        public override Version Version => new Version(1, 1, 2);
 
         public static EmoteForAll Instance { get; set; }
-
         private Harmony _harmony;
+
+        private handlers.playerHandler PlayerHandler;
 
         public override void OnEnabled()
         {
@@ -25,6 +27,10 @@ namespace EmoteForAll
                 _harmony.PatchAll();
             }
 
+            PlayerHandler = new handlers.playerHandler();
+
+            Exiled.Events.Handlers.Player.Hurting += PlayerHandler.Hurting;
+
             Log.Info("Plugin Enabled!");
         }
         public override void OnDisabled()
@@ -33,6 +39,8 @@ namespace EmoteForAll
             {
                 _harmony.UnpatchAll();
             }
+
+            Exiled.Events.Handlers.Player.Hurting -= PlayerHandler.Hurting;
 
             Log.Info("Disabled Plugin Successfully");
         }

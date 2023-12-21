@@ -53,7 +53,7 @@ namespace EmoteForAll.Classes
 
             Timing.CallDelayed(0.5f, () =>
             {
-                EmoteNpc.Health = 999f;
+                EmoteNpc.Health = 9999f;
                 EmoteNpc.HumeShield = 0f;
                 EmoteNpc.Scale = plr.Scale;
                 if (EmoteNpc.Role is Scp3114Role scpRole)
@@ -267,7 +267,7 @@ namespace EmoteForAll.Classes
                     }
                     LookAt(NpcOwner, Player.Get(OwnerUserId).CameraTransform.forward + Player.Get(OwnerUserId).CameraTransform.position);
 
-                    NpcOwner.Health = 999f;
+                    NpcOwner.Health = 9999f;
                     NpcOwner.HumeShield = 0f;
 
                     if (CurrentTime - LastHintTime > 500)

@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using NorthwoodLib.Pools;
 using System.Reflection.Emit;
 using EmoteForAll.Types;
+using PlayerRoles.PlayableScps.Scp079;
 
 namespace EmoteForAll.Patches
 {
@@ -53,13 +54,15 @@ namespace EmoteForAll.Patches
             ReferenceHub rhub;
             __instance.TryGetOwner(out rhub);
             Npc npc = Npc.Get(rhub);
-            if (npc != null && EmoteHandler.emoteAttachedNPC.Values.Contains(npc))
+            if (EmoteHandler.emoteAttachedNPC.Values.Contains(npc))
             {
                 __result = !HitboxIdentity.CheckFriendlyFire(adh.Attacker.Role, __instance.CurIdentity.StolenRole, false);
-                EmoteHandler emHand;
-                if (!__result && npc.GameObject.TryGetComponent<EmoteHandler>(out emHand))
+                if (!__result)
                 {
-                    emHand.KillEmote(plrDamage: adh.DealtHealthDamage);
+                    //npc.GameObject.GetComponent<EmoteHandler>().KillEmote(plrDamage: adh.DealtHealthDamage);
+                } else
+                {
+                    Player.Get(adh.Attacker.Hub).ShowHint("<size=40><color=red>STOP!</color></size>\n<size=25>This isnt the Skeleton. It's just an emote. Don't Try Killing it.</size>");
                 }
             }
         }
@@ -104,6 +107,31 @@ namespace EmoteForAll.Patches
             }
             writer.WriteByte((byte)Random.Range(0, 255)); // Default Dance
             return;
+        }
+    }
+
+    // Fix Round End
+    [HarmonyPatch(typeof(PlayerRolesUtils), nameof(PlayerRolesUtils.GetTeam), new[] { typeof(ReferenceHub) })]
+    internal static class GetTeam
+    {
+        [HarmonyPostfix]
+        private static void Postfix(ReferenceHub hub, ref Team __result)
+        {
+            __result = EmoteHandler.emoteAttachedNPC.Values.Contains(Npc.Get(hub)) ? Team.Dead : __result;
+        }
+    }
+
+    // Recontaining 079
+    [HarmonyPatch(typeof(Scp079Recontainer), nameof(Scp079Recontainer.IsScpButNot079))]
+    internal static class IsScpButNot079
+    {
+        [HarmonyPostfix]
+        private static void Postfix(PlayerRoleBase prb, ref bool __result)
+        {
+            prb.TryGetOwner(out ReferenceHub rhub);
+
+            if (EmoteHandler.emoteAttachedNPC.Values.Contains(Npc.Get(rhub)))
+                __result = false;
         }
     }
 }
