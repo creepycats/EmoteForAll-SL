@@ -56,7 +56,7 @@ namespace EmoteForAll.Patches
             Npc npc = Npc.Get(rhub);
             if (EmoteHandler.emoteAttachedNPC.Values.Contains(npc))
             {
-                __result = !HitboxIdentity.CheckFriendlyFire(adh.Attacker.Role, __instance.CurIdentity.StolenRole, false);
+                __result = !HitboxIdentity.IsDamageable(adh.Attacker.Role, __instance.CurIdentity.StolenRole);
                 if (!__result)
                 {
                     //npc.GameObject.GetComponent<EmoteHandler>().KillEmote(plrDamage: adh.DealtHealthDamage);
